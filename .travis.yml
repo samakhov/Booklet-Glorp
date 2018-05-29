@@ -1,39 +1,14 @@
-language: smalltalk
-sudo: false
-
-os:
-  - linux
-
-smalltalk:
-  - Pharo-6.1
-
-# Unit tests run the normal pillar tests
-# Integration tests test that pillar itself can interact with generated files, pdf generation, etc.
-# System tests test that we can install and use pillar as a black box
-env:
-  matrix:
-  - JOB=test TYPE=System ARCHETYPE=book OUTPUT=pdf
-
-install:
-  # Pillar installation
-  - git clone https://github.com/pillar-markup/pillar.git # Clone pillar
-  - cd pillar && ./scripts/build.sh && cd ..                              # Run pillar build script. Pillar will be built in `pwd`/build!
-  - . pillar/scripts/ci/ensure_latex.sh                                   # Install latex
-  - ./pillar/scripts/ci/ensure_book_dependencies.sh                       # Install latex dependencies required by pillar
-  
+language: c
+addons:
+  apt:
+    packages:
+    - libasound2:i386
+    - lib32z1
+    - lib32bz2-1.0
+    - libssl1.0.0:i386
+    - libfreetype6:i386
 script:
-  - ./pillar/build/pillar build pdf
-deploy:
-- provider: bintray
-  file: .bintray.json
-  on: { repo: SquareBracketAssociates/Booklet-Glorp }
-  skip_cleanup: true
-  user: ducasse
-  key:
-    secure: mHm1sNZ+23rSjpt6CkGos0VGeRUKv3d+Roc/NKqTZS1WziXND0Dpn7s/stvU56dBCDLRzweohpX0UqhqNX79rOIqfOzdedoaM7UylF9ZxQ0jb768uE7rDDNpYBG4K/uHkkH0RehRrRrRd0uH46G8B5loPSjJMowClHKZ907SN5D+79E40GvYoAiF188zX7YXM0egVZFn5KadDLEP/R8az9wlooaCZ4/+53yFltLdft2RRRGbHjbfXt3YCBB2qVqGdpuhxk4T4g4OguaXu7pCCCXkOIxabBIWZtk7HXG4AiqBoK5l0DTstIYFvaL6/VI7lrE0I5NKs/3rTSXhRUmgXAiEwQ3CviDhwsCxNGbLjUENzhwNCq3qK8JX5ZLNTdhyU5q3WBZokCRTO/q01zFdR0ZCbPRutbifC7bckIBUtoigpQXQJB+Da2doCv+omiQYgohDQydM8qjDUXwgX+kcTPrgGWo+/4u2ZL6kacPcYMK9UOImGPVOIQI+Q2VCCMTL3zt4iXnT18E9eETQF6cUCrcwyYxUs/UOW1rytAf5gVa6gcqH57j/fxq4Gl4zlNwgN4Q2bkGSdflVBMNhiVpq29yljKJ+4Vuzngu1mpdqeYnMzkM3zvF0DUEasLmHL4aHH/iQdwQ3vfPehNoFKsKymozC4KX3Z1YoB/NXxW8hWgE=
-- provider: releases
-  file: build/glorp.spiral.pdf
-  on: { tags: true }
-  skip_cleanup: true
-  api_key:
-    secure: pRfu3fr35BzqQDi1ul0SubPSwO8zcyIidqLRZPz3XIrH4qoy1Zgnq785dmB7ziNQqH+VJyh7askSFY3JLxL0d4P0eUgj2ZDIOhJsUQQ/ihevOBWbxlMOoEPjQfzA11l8WrNCQ566KrcYiISRi7bCg698kPTWSRwOmmvqXOJe5zGkuUbVmMNUV2oxaNV4JC8kVyVWHYy0nNMLEX/hzRZRh1+8K34/ds+fZ7irLrbDWMbKGHCyuLCSqv+zJJdu99nWLTclrCxFzK4DEHaMlFiO7wkUpyQLwZ38EDnb3E7iv045jSqCx3XB+DMRG1Da2/9BIXl0mho5ELdEvfGVAbjI2no5FWd0H1cs4/banAePCFnM7ZscJBaPWgVajB7EzrcADJUoxpmU6+6n1aIC3CnjscfAHqSAKGv8CO/Jh+Uirc8ATRpSqa73f2Nnj9tRCqwCOnFOCEzu0w5l3Ppz2Qpif04P+QbebZehSVaBJ4W01R2i8Rac3IuZDhZVaek1X24HFxUOd/rvHpbhz8eeANdnsWCTkAm+0sD+iKsWKICRMxFZfCK/SPldAcjXZsOsEMTqfx7ZWyCc7GeesQWcmW+z3shziyQd9tdeArJWLwacly3hH3WeyuUD5JyPF9klvDBtHgTVajdU4yp+3oXsrtTmetnBz+RESxQGdLgZRlQBQog=
+- if [[ ${TRAVIS_BRANCH} == "master" ]]; then make deploy; fi
+env:
+  global:
+    secure: O+gX5PBdYkezh2InjHN3+csWaUJqK39lm+AfxeJOtWJyqB+0SgT7MEALGWHnTF0irhAT5eAFvjgmAOj8CUj4e9Ued104tfVF4FURwHCymTp8/KCsLgTSbNrp3Efci85W4S6DrbWH19GJ4KrNmzZk7SUC4njiuwcObE57xmJb3lpdp2EDnTPXOUQjA+odVv8wHrkNGcS1sWhqUywtwy7CPaxfvNBeKy6TtjU6NYZwABMSu7N3AfQHictLx1HO8cToGFCQhXJlLY4713hFSKmHf9fKiSMUrW1qWOxLnpeQ1isjbOwvdDXdKbcX7fRErPDRCitiOhZXImJTlsN9tSZpJ7CK8DomQzF7N3tH639ZEc1qG4no3sEsk3OdIrlKLKdPbERxGyY6zxnopypevOURgy35gIx/2aXfPQ2GNIh8QfmL7osa/JhQbyhowTtAb1OR/UtKJpKCAAf36doQhJLZUXpoZRPUTrJAZ/amzvnEJ8++vN1u/ZmOlfQE/KFlCVXecFdSVnjUlL6fZzBiSrRd/vQTAsDwW/CmSFFTNsS0NOBrwKHqO62fC07+VvlkM43qXZbgJwi/0+7Br0nsHfwcKatlpsOe8zi+2sQlRKyyhE5J3JS3zwVQXJ3sknHalvndJ146vMrjbywlyC2vb841hjQwx+CcSX12FU4Ku3Ntlsg=
